@@ -37,20 +37,7 @@ def btn_clicked():
             time.sleep(5)
             tabela.loc[i, 'Situação Pagamento'] = 'Mensagem Enviada'
     nav.quit()
-    tabela.to_excel('Cobrancas2.xlsx', index=False)
-
-    class MyWindow:
-        def __init__(self, master):
-            self.master = master
-            self.master.title("Mensagem Enviada")
-            self.master.geometry("300x100")
-            self.label = Label(self.master, text="Mensagem enviada com sucesso!")
-            self.label.pack(pady=20)
-
-
-
-
-    
+    tabela.to_excel('Cobrancas2.xlsx', index=False)  
 
 
 window = Tk()
