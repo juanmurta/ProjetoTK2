@@ -1,8 +1,56 @@
 from tkinter import *
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
+import pandas as pd
+import time
+import urllib
 
 
 def btn_clicked():
-    print("Button Clicked")
+    funcionario = entry1.get()
+    msg = entry0.get("1.0", "end-1c")
+
+    tabela = pd.read_excel('Cobrancas.xlsx')
+
+    nav = webdriver.Chrome()
+    nav.get('https://web.whatsapp.com/')
+
+    # fazendo login no whatsapp web
+    while len(nav.find_elements_by_id('pane-side')) == 0:
+        time.sleep(10)
+
+    # enviando mensagem para o devedor
+    for i, situacao in enumerate(tabela['Situação Pagamento']):
+        if situacao in msg:
+            nome = tabela.loc[i, 'Nome']
+            telefone = tabela.loc[i, 'Telefone']   
+            valor = tabela.loc[i, 'Valor Devido']
+            mensagem = f"Olá {nome}, tudo bem? Você possui um valor de R$ {valor} em aberto. Por favor, entre em contato para regularizar sua situação."
+            texto = urllib.parse.quote(mensagem)
+            nav.get(f'https://api.whatsapp.com/send?phone={telefone}&text={texto}')
+
+            while len(nav.find_elements_by_id('pane-side')) == 0:
+                time.sleep(10)
+            time.sleep(5)
+            nav.find_element(By.XPATH, '//*[@id="main"]/footer/div[1]/div/span/div/div[2]/div[1]/div[2]/div[1]/p').send_keys(Keys.ENTER)
+            time.sleep(5)
+            tabela.loc[i, 'Situação Pagamento'] = 'Mensagem Enviada'
+    nav.quit()
+    tabela.to_excel('Cobrancas2.xlsx', index=False)
+
+    class MyWindow:
+        def __init__(self, master):
+            self.master = master
+            self.master.title("Mensagem Enviada")
+            self.master.geometry("300x100")
+            self.label = Label(self.master, text="Mensagem enviada com sucesso!")
+            self.label.pack(pady=20)
+
+
+
+
+    
 
 
 window = Tk()
